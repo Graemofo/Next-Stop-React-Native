@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
 import MapView from 'react-native-maps'; // api AIzaSyDQZV9qz4b5pj6PeD361ntTnxx6zZQbSlc
+import Toggle from 'react-native-toggle-element';
 import {
   SafeAreaView,
   StatusBar,
@@ -11,16 +12,40 @@ import {
 } from 'react-native';
 
 const App = () => {
+  const [toggleValue, setToggleValue] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
   const [mode, setMode] = useState('Luas');
-  const toggleSwitch = () =>
-    setMode(prev => (prev == 'Luas' ? 'Train' : 'Luas'));
-  console.log(mode);
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   const onSelectedItem = item => {
-    console.log('Item ', item);
+    console.log(item);
   };
+
+  useEffect(() => {
+    setMode(isEnabled ? 'Luas' : 'Train');
+    console.log('Mode ', mode);
+  }, [isEnabled]);
+
   return (
     <SafeAreaView style={styles.sectionContainer}>
       <StatusBar />
+      <View style={styles.toggle}>
+        <Toggle //https://github.com/mymai91/react-native-toggle-element
+          value={toggleValue}
+          onPress={newState => setToggleValue(newState)}
+          leftTitle="Luas"
+          rightTitle="Train"
+          leftComponent={<Text fill={'black'}>Luas</Text>}
+          rightComponent={<Text fill={'black'}>Train</Text>}
+          trackBar={{
+            padding: 20,
+            activeBackgroundColor: 'white',
+            inActiveBackgroundColor: 'white',
+            width: 100,
+            height: 30,
+          }}
+        />
+      </View>
+
       <View style={styles.searchBar}>
         <View style={styles.leftSearchBar}>
           <AutocompleteDropdown
@@ -39,18 +64,19 @@ const App = () => {
           />
         </View>
         <View style={styles.rightSearchBar}>
-          <Switch
-            // trackColor={{false: '#767577', true: '#81b0ff'}}
-            thumbColor={mode ? 'Luas' : 'Train'}
-            ios_backgroundColor="#3e3e3e"
+          {/* https://reactnative.dev/docs/switch */}
+          {/* <Switch
+            ios_backgroundColor={{false: '#3e3e3e', true: '#3e3e3e'}}
             onValueChange={toggleSwitch}
-            value={mode}
-          />
-          <Text style={{color: 'white'}}>{mode}</Text>
+            value={isEnabled}
+          /> */}
+
+          {/* <Text style={{color: 'white'}}>{mode}</Text> */}
         </View>
       </View>
+      <View></View>
       <View style={styles.mapContainer}>
-        <MapView
+        {/* <MapView
           style={styles.map}
           initialRegion={{
             latitude: 53.34685,
@@ -60,7 +86,7 @@ const App = () => {
           }}
           userInterfaceStyle={'dark'}
           showsUserLocation
-        />
+        /> */}
       </View>
     </SafeAreaView>
   );
@@ -78,18 +104,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchBar: {
+    zIndex: 1000,
     flexDirection: 'row',
     padding: 5,
     margin: 20,
+    marginTop: 5,
   },
   leftSearchBar: {
     padding: 1,
-
-    flex: 7,
+    flex: 8,
   },
-  rightSearchBar: {
-    padding: 10,
-    flex: 1,
+  rightSearchBar: {},
+  toggle: {
+    color: 'black',
+    marginTop: 20,
+    marginLeft: 20,
   },
 });
 
