@@ -4,7 +4,7 @@ import MapView, {Marker} from 'react-native-maps'; // api AIzaSyDQZV9qz4b5pj6PeD
 import Toggle from 'react-native-toggle-element';
 import luas from './luas.json';
 import train from './train.json';
-import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {SafeAreaView, StatusBar, StyleSheet, Alert, View} from 'react-native';
 
 const App = () => {
   const [isEnabled, setIsEnabled] = useState(false);
@@ -13,23 +13,21 @@ const App = () => {
   const [stations, setStations] = useState([]);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
-  const onSelectedItem = item => {
-    console.log('Destination :', item);
-    setDestination([{lat: item.lat, long: item.long}]);
-  };
-
   const luasData = new Array();
   const trainData = new Array();
+
+  const onSelectedDestination = item => {
+    setDestination([{lat: item.lat, long: item.long}]);
+    alertNotification(item);
+  };
 
   const onSelectedMode = item => {
     toggleSwitch(item);
     setMode(true ? 'Train' : 'Luas');
-    console.log('Mode', mode);
   };
 
   useEffect(() => {
     setMode(isEnabled ? 'Luas' : 'Train');
-    console.log('Mode ', mode);
   }, [isEnabled]);
   // Set data set for stations
   useEffect(() => {
@@ -52,12 +50,32 @@ const App = () => {
     setStations(mode == 'Train' ? trainData : luasData);
   }, [mode]);
 
+  const alertNotification = destination => {
+    Alert.alert(
+      'Set Alarm for ' + destination.title,
+      'My Alert Msg',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Set Alarm',
+          onPress: () => console.log('OK Pressed'),
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
   return (
     <SafeAreaView style={styles.sectionContainer}>
       <StatusBar />
       <View style={styles.toggle}>
         <Toggle //https://github.com/mymai91/react-native-toggle-element
           //value={toggleValue}
+
           onPress={newState => onSelectedMode(newState)}
           leftTitle="Luas"
           rightTitle="Train"
@@ -67,11 +85,12 @@ const App = () => {
             inActiveBackgroundColor: 'white',
             width: 100,
             height: 30,
+            borderActiveColor: 'yellow',
+            borderInActiveColor: 'yellow',
+            borderWidth: 5,
           }}
         />
-        <Text>{mode}</Text>
       </View>
-
       <View style={styles.searchBar}>
         <View style={styles.leftSearchBar}>
           <AutocompleteDropdown
@@ -83,7 +102,7 @@ const App = () => {
             closeOnSubmit={false}
             onSelectItem={item => {
               if (item !== null) {
-                onSelectedItem(item);
+                onSelectedDestination(item);
               }
             }}
             dataSet={stations}
@@ -105,21 +124,25 @@ const App = () => {
           showsUserLocation
           customMapStyle={mapStyle}>
           <Marker
+            pinColor="yellow"
             coordinate={{
               latitude: 53.34835,
               longitude: -6.23714722222222,
             }}
             title={'You are here'}
             description={'5 minutes to destination'}
+            identifier={'Current'}
           />
           {destination.length > 0 && (
             <Marker
+              pinColor="yellow"
               coordinate={{
                 latitude: destination[0].lat,
                 longitude: destination[0].long,
               }}
               title={destination.title}
               description={'Desc'}
+              identifier={'Destination'}
             />
           )}
         </MapView>
@@ -131,7 +154,7 @@ const App = () => {
 const styles = StyleSheet.create({
   sectionContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: 'black',
   },
   mapContainer: {
     flex: 1,
