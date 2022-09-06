@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
-import MapView, {Marker} from 'react-native-maps'; // api AIzaSyDQZV9qz4b5pj6PeD361ntTnxx6zZQbSlc
+import MapView, {Marker, Polyline} from 'react-native-maps'; // api AIzaSyDQZV9qz4b5pj6PeD361ntTnxx6zZQbSlc
 import Toggle from 'react-native-toggle-element';
 import luas from './luas.json';
 import train from './train.json';
 import {SafeAreaView, StatusBar, StyleSheet, Alert, View} from 'react-native';
+import {redlineData, greenLineData} from './polyline';
 
 const App = () => {
   const [isEnabled, setIsEnabled] = useState(false);
@@ -85,9 +86,9 @@ const App = () => {
             inActiveBackgroundColor: 'white',
             width: 100,
             height: 30,
-            borderActiveColor: 'yellow',
-            borderInActiveColor: 'yellow',
-            borderWidth: 5,
+            borderActiveColor: 'grey',
+            borderInActiveColor: 'grey',
+            borderWidth: 3,
           }}
         />
       </View>
@@ -110,7 +111,7 @@ const App = () => {
         </View>
         <View style={styles.rightSearchBar}></View>
       </View>
-      <View></View>
+
       <View style={styles.mapContainer}>
         <MapView
           style={styles.map}
@@ -123,8 +124,32 @@ const App = () => {
           userInterfaceStyle={'dark'}
           showsUserLocation
           customMapStyle={mapStyle}>
+          {mode == 'Luas' && (
+            <>
+              <Polyline
+                coordinates={[
+                  {latitude: 53.3509222222222, longitude: -6.24994166666667},
+                  {latitude: 53.350075, longitude: -6.25145},
+                  {latitude: 53.3485888888889, longitude: -6.25817222222222},
+                ]}
+                strokeColor="red"
+                strokeWidth={3}
+              />
+              <Polyline
+                coordinates={redlineData}
+                strokeColor="red"
+                strokeWidth={3}
+              />
+              <Polyline
+                coordinates={greenLineData}
+                strokeColor="green"
+                strokeWidth={3}
+              />
+            </>
+          )}
+
           <Marker
-            pinColor="yellow"
+            pinColor="blue"
             coordinate={{
               latitude: 53.34835,
               longitude: -6.23714722222222,
@@ -135,7 +160,7 @@ const App = () => {
           />
           {destination.length > 0 && (
             <Marker
-              pinColor="yellow"
+              pinColor="blue"
               coordinate={{
                 latitude: destination[0].lat,
                 longitude: destination[0].long,
